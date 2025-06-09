@@ -5,21 +5,13 @@
 ![MCP Tutorial Banner](https://img.shields.io/badge/🤖_MCP-AI_Assistant_Tutorial-blueviolet?style=for-the-badge&logoColor=white)
 [![Python](https://img.shields.io/badge/Python-3.8+-green?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![Jupyter](https://img.shields.io/badge/Jupyter-Lab-orange?style=for-the-badge&logo=jupyter&logoColor=white)](https://jupyter.org)
-[![Claude](https://img.shields.io/badge/Claude-MCP_Compatible-purple?style=for-the-badge&logo=anthropic&logoColor=white)](https://claude.ai)
-[![ChatGPT](https://img.shields.io/badge/ChatGPT-MCP_Ready-green?style=for-the-badge&logo=openai&logoColor=white)](https://openai.com)
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/CarlosIbCu/mcp-tutorial-complete-guide?style=for-the-badge)](https://github.com/CarlosIbCu/mcp-tutorial-complete-guide/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/CarlosIbCu/mcp-tutorial-complete-guide?style=for-the-badge)](https://github.com/CarlosIbCu/mcp-tutorial-complete-guide/network)
-[![Contributors](https://img.shields.io/github/contributors/CarlosIbCu/mcp-tutorial-complete-guide?style=for-the-badge)](https://github.com/CarlosIbCu/mcp-tutorial-complete-guide/graphs/contributors)
 
 **🏆 A Comprehensive Guide to Model Context Protocol (MCP)**
 
-*Learn how to build robust AI assistant integrations with MCP*
+*Learn how to build robust tool integrations with MCP*
 
-[🚀 **Get Started**](#-quick-start) • [📚 **Learn MCP**](#-learning-path) • [🎯 **Examples**](#-what-youll-build) • [🛠️ **Support**](#-support)
-
-**⭐ Star this repo if it helps you! ⭐**
+[🚀 **Get Started**](#-quick-start) • [📚 **Learn MCP**](#-learning-path) • [🎯 **Examples**](#-example-projects) • [🛠️ **Support**](#-support)
 
 </div>
 
@@ -27,7 +19,7 @@
 
 ## 🌟 About This Tutorial
 
-This tutorial provides a structured learning path for understanding and implementing the Model Context Protocol (MCP), a standardized way for AI assistants to interact with external tools and services.
+This tutorial provides a structured learning path for understanding and implementing the Model Context Protocol (MCP), a standardized way for tools to interact with external services and resources.
 
 - ✅ **Progressive Learning Path** - From fundamentals to advanced implementations
 - ✅ **Practical Examples** - Real-world applications and use cases
@@ -36,16 +28,16 @@ This tutorial provides a structured learning path for understanding and implemen
 
 ## 🚀 What is MCP?
 
-The Model Context Protocol (MCP) is a standardized protocol that enables AI assistants to:
+The Model Context Protocol (MCP) is a standardized protocol that enables tools to:
 
-- 🔧 **Use External Tools** - Interact with APIs, databases, and file systems
+- 🔧 **Use External Resources** - Interact with APIs, databases, and file systems
 - 🔐 **Maintain Security** - Follow strict security and permission protocols
-- 🎯 **Execute Tasks** - Perform specific actions based on user requests
+- 🎯 **Execute Tasks** - Perform specific actions based on requests
 - 📊 **Handle Data** - Process and manage data safely and efficiently
 
 ### Key Features of MCP
 
-- **Standardized Communication** - Consistent interaction patterns between AI and tools
+- **Standardized Communication** - Consistent interaction patterns between components
 - **Security First** - Built-in security measures and permission handling
 - **Extensible Design** - Easy to add new tools and capabilities
 - **Error Handling** - Robust error management and recovery
@@ -58,7 +50,7 @@ The Model Context Protocol (MCP) is a standardized protocol that enables AI assi
 <td width="50%">
 
 ### 🆕 **Beginners**
-- New to AI integration
+- New to tool integration
 - Python developers
 - Students & researchers
 - No prior MCP experience needed
@@ -67,7 +59,7 @@ The Model Context Protocol (MCP) is a standardized protocol that enables AI assi
 <td width="50%">
 
 ### 🚀 **Professionals**
-- AI/ML engineers
+- Software engineers
 - Backend developers
 - DevOps engineers
 - System architects
@@ -81,35 +73,37 @@ The Model Context Protocol (MCP) is a standardized protocol that enables AI assi
 ### 🟢 **Fundamentals**
 *Start your MCP journey here*
 
-| # | Topic | Focus Areas |
-|---|-------|-------------|
-| 01 | Introduction to MCP | Core concepts, architecture |
-| 02 | Basic Tool Creation | Simple tools, message flow |
-| 03 | Error Handling | Validation, error patterns |
-| 04 | Security Basics | Permissions, authentication |
-| 05 | Testing Tools | Unit tests, integration tests |
+| # | Notebook | Focus Areas |
+|---|----------|-------------|
+| 01 | [Introduction to MCP](notebooks/fundamentals/01_introduction_to_mcp.ipynb) | Core concepts, architecture |
+| 02 | [Environment Setup](notebooks/fundamentals/02_environment_setup.ipynb) | Development environment, dependencies |
+| 03 | [Your First MCP](notebooks/fundamentals/03_your_first_mcp.ipynb) | Building a basic MCP server |
+| 04 | [Basic Tools](notebooks/fundamentals/04_basic_tools.ipynb) | Simple tool implementation |
+| 05 | [Protocol Deep Dive](notebooks/fundamentals/05_protocol_deep_dive.ipynb) | Understanding MCP internals |
 
 ### 🟡 **Intermediate**
 *Build practical applications*
 
-| # | Topic | Focus Areas |
-|---|-------|-------------|
-| 06 | API Integration | REST APIs, authentication |
-| 07 | File Operations | Safe file handling |
-| 08 | Database Access | Query execution, data safety |
-| 09 | State Management | Context, persistence |
-| 10 | Advanced Security | OAuth2, JWT |
+| # | Notebook | Focus Areas |
+|---|----------|-------------|
+| 06 | [File Operations](notebooks/intermediate/06_file_operations.ipynb) | Safe file handling |
+| 07 | [API Integration](notebooks/intermediate/07_api_integration.ipynb) | REST APIs, authentication |
+| 08 | [Database Operations](notebooks/intermediate/08_database_operations.ipynb) | Query execution, data safety |
+| 09 | [State Management](notebooks/intermediate/09_state_management.ipynb) | Context, persistence |
+| 10 | [Error Handling](notebooks/intermediate/10_error_handling.ipynb) | Robust error patterns |
 
 ### 🔴 **Advanced**
 *Production and scaling*
 
-| # | Topic | Focus Areas |
-|---|-------|-------------|
-| 11 | Performance | Optimization, caching |
-| 12 | Deployment | Docker, cloud platforms |
-| 13 | Monitoring | Logging, metrics |
-| 14 | Complex Tools | Multi-step operations |
-| 15 | Best Practices | Production patterns |
+| # | Notebook | Focus Areas |
+|---|----------|-------------|
+| 11 | [Custom Resources](notebooks/advanced/11_custom_resources.ipynb) | Dynamic resource providers |
+| 12 | [Multi-Tool MCPs](notebooks/advanced/12_multi_tool_mcps.ipynb) | Complex tool orchestration |
+| 13 | [Security & Auth](notebooks/advanced/13_security_auth.ipynb) | OAuth2, JWT, enterprise security |
+| 14 | [Performance](notebooks/advanced/14_performance_optimization.ipynb) | Optimization, caching |
+| 15 | [Production Deployment](notebooks/advanced/15_production_deployment.ipynb) | Docker, cloud platforms |
+| 16 | [Testing Strategies](notebooks/advanced/16_testing_strategies.ipynb) | Unit, integration, E2E testing |
+| 17 | [Advanced Patterns](notebooks/advanced/17_advanced_patterns.ipynb) | Architecture patterns |
 
 ## 💡 Example Projects
 
@@ -181,27 +175,16 @@ mcp-tutorial-complete-guide/
 - **🏢 Enterprise Patterns**: Scalable architectures and best practices
 - **🧪 Fully Tested**: Comprehensive testing strategies included
 - **📚 Rich Documentation**: Detailed explanations and comments
-- **🎨 Beautiful UI**: Clean, modern interface design
 
-## 🏆 What Makes This Tutorial Special
+## 🔥 Key Topics Covered
 
-This comprehensive tutorial provides everything you need to master MCP development:
-
-- **Complete Coverage**: From basic concepts to production deployment
-- **Hands-On Learning**: Real code examples you can run immediately  
-- **Progressive Structure**: Each lesson builds naturally on the previous ones
-- **Production Focus**: Learn industry best practices and security patterns
-
-## 🔥 Trending Topics Covered
-
-- 🤖 **AI Assistant Integration** - Claude, ChatGPT, custom LLMs
-- 🌐 **API Development** - REST, GraphQL, WebSocket, gRPC  
-- 🗄️ **Database Integration** - PostgreSQL, MongoDB, Redis, SQLite
-- 🔐 **Security Best Practices** - OAuth2, JWT, encryption, validation
-- 📊 **Performance Optimization** - Caching, async programming, scaling
-- 🚀 **Cloud Deployment** - Docker, Kubernetes, AWS, GCP, Azure
-- 🧪 **Testing & QA** - Unit tests, integration tests, E2E testing
-- 📈 **Monitoring & Observability** - Logging, metrics, alerting
+- 🌐 **API Development** - REST, GraphQL, WebSocket integration
+- 🗄️ **Database Integration** - SQL and NoSQL databases
+- 🔐 **Security Best Practices** - OAuth2, JWT, encryption
+- 📊 **Performance Optimization** - Caching, async programming
+- 🚀 **Cloud Deployment** - Docker, Kubernetes
+- 🧪 **Testing & QA** - Unit, integration, E2E testing
+- 📈 **Monitoring** - Logging, metrics, alerting
 
 ## 🚀 Get Started Now
 
@@ -216,7 +199,7 @@ This comprehensive tutorial provides everything you need to master MCP developme
 #### 🆕 **New to MCP?**
 **Start Here! 👇**
 
-[![Start Learning](https://img.shields.io/badge/🚀_Start_Learning-Introduction_to_MCP-blue?style=for-the-badge)](notebooks/fundamentals/01_introduction.ipynb)
+[![Start Learning](https://img.shields.io/badge/🚀_Start_Learning-Introduction_to_MCP-blue?style=for-the-badge)](notebooks/fundamentals/01_introduction_to_mcp.ipynb)
 
 *Perfect for beginners*
 
@@ -240,54 +223,9 @@ This comprehensive tutorial provides everything you need to master MCP developme
 
 ### 🆘 Need Help?
 
-- 💬 **Questions & Discussions**: [GitHub Discussions](https://github.com/CarlosIbCu/mcp-tutorial-complete-guide/discussions)
 - 🐛 **Report a Bug**: [Create an Issue](https://github.com/CarlosIbCu/mcp-tutorial-complete-guide/issues)
-- 💡 **Request a Feature**: [Feature Requests](https://github.com/CarlosIbCu/mcp-tutorial-complete-guide/issues/new?template=feature_request.md)
-
-## 🤝 Contributing
-
-We ❤️ contributions! Here's how you can help:
-
-- 🌟 **Star this repo** (it really helps!)
-- 🍴 **Fork & improve** the tutorials
-- 🐛 **Report bugs** or suggest features
-- 📝 **Improve documentation**
-- 🎨 **Share your projects** built with this tutorial
-
-[![Contributors](https://contrib.rocks/image?repo=CarlosIbCu/mcp-tutorial-complete-guide)](https://github.com/CarlosIbCu/mcp-tutorial-complete-guide/graphs/contributors)
+- 💡 **Request a Feature**: [Feature Requests](https://github.com/CarlosIbCu/mcp-tutorial-complete-guide/issues/new)
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-**TL;DR**: Use it, modify it, share it, build commercial products with it! 🚀
-
-## ⭐ Star History
-
-<div align="center">
-
-[![Star History Chart](https://api.star-history.com/svg?repos=CarlosIbCu/mcp-tutorial-complete-guide&type=Date)](https://star-history.com/#CarlosIbCu/mcp-tutorial-complete-guide&Date)
-
-**Help us reach 1000 stars! ⭐**
-
-</div>
-
-## 🔗 Related Resources
-
-- [MCP Official Specification](https://github.com/modelcontextprotocol) - Official MCP protocol documentation
-
----
-
-<div align="center">
-
-### 🎯 **Ready to Build the Future of AI?**
-
-[![Get Started Now](https://img.shields.io/badge/🚀_Get_Started_Now-Introduction_to_MCP-blue?style=for-the-badge&logoColor=white)](notebooks/fundamentals/01_introduction.ipynb)
-
-**⚡ From zero to AI expert in one repository ⚡**
-
-*Open source tutorial for the developer community*
-
-**🌟 Don't forget to star this repo! 🌟**
-
-</div> 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
