@@ -274,7 +274,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 🔗 Related Resources
 
-- [MCP Official Specification](https://github.com/modelcontextprotocol/spec) - Official MCP protocol documentation
+- [MCP Official Specification](https://github.com/modelcontextprotocol) - Official MCP protocol documentation
 
 ---
 
