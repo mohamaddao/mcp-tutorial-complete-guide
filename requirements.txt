@@ -1,15 +1,35 @@
 # Core MCP dependencies
-mcp>=1.0.0
-uvicorn>=0.24.0
-fastapi>=0.104.0
-pydantic>=2.5.0
-httpx>=0.25.0
+modelcontextprotocol>=1.0.0  # Core MCP package
+fastapi>=0.104.0             # For MCP server implementation
+pydantic>=2.5.0             # For data validation
+uvicorn>=0.24.0             # ASGI server
+httpx>=0.25.0               # HTTP client
 
-# Jupyter and notebook dependencies
+# Security dependencies
+cryptography>=41.0.0        # For encryption
+pyjwt>=2.8.0               # For JWT handling
+passlib>=1.7.4             # For password hashing
+
+# Tutorial environment
 jupyter>=1.0.0
 jupyterlab>=4.0.0
 notebook>=7.0.0
 ipywidgets>=8.0.0
+
+# Documentation and development
+sphinx>=7.2.0
+black>=23.11.0
+flake8>=6.1.0
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# Example project dependencies
+aiohttp>=3.9.0             # For async HTTP
+python-multipart>=0.0.6    # For file handling
+sqlalchemy>=2.0.0          # For database examples
+python-dotenv>=1.0.0       # For environment variables
+
+# Optional: Data visualization
 matplotlib>=3.7.0
 seaborn>=0.12.0
 plotly>=5.17.0
@@ -24,47 +44,34 @@ sqlite3  # Built-in with Python
 psycopg2-binary>=2.9.0  # PostgreSQL
 pymongo>=4.6.0          # MongoDB
 redis>=5.0.0            # Redis
-sqlalchemy>=2.0.0       # ORM
 
 # API and web development
 requests>=2.31.0
-aiohttp>=3.9.0
-websockets>=12.0
 flask>=3.0.0
 starlette>=0.27.0
+websockets>=12.0
 
 # Authentication and security
-cryptography>=41.0.0
-pyjwt>=2.8.0
-passlib>=1.7.4
 bcrypt>=4.1.0
 
 # File handling and processing
-python-multipart>=0.0.6
 python-magic>=0.4.27
 pillow>=10.1.0
 openpyxl>=3.1.0
 python-docx>=1.1.0
 
 # Testing
-pytest>=7.4.0
-pytest-asyncio>=0.21.0
 pytest-cov>=4.1.0
-httpx>=0.25.0  # For testing HTTP clients
 
 # Development tools
-black>=23.11.0
-flake8>=6.1.0
 mypy>=1.7.0
 isort>=5.12.0
 pre-commit>=3.6.0
 
 # Documentation
-sphinx>=7.2.0
 sphinx-rtd-theme>=1.3.0
 
 # Utilities
-python-dotenv>=1.0.0
 click>=8.1.0
 rich>=13.7.0
 typer>=0.9.0
