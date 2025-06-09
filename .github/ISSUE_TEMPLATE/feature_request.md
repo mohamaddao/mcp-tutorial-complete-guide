@@ -1,22 +1,37 @@
 ---
-name: 💡 Feature Request
+name: Feature Request
 about: Suggest an idea for the MCP tutorial
 title: '[FEATURE] '
-labels: ['enhancement', 'feature-request']
+labels: enhancement
 assignees: ''
 ---
+
+**Is your feature request related to a problem? Please describe.**
+A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+
+**Describe the solution you'd like**
+A clear and concise description of what you want to happen.
+
+**Describe alternatives you've considered**
+A clear and concise description of any alternative solutions or features you've considered.
+
+**Target Audience**
+Who would benefit from this feature?
+- [ ] Beginners
+- [ ] Intermediate users
+- [ ] Advanced users
+- [ ] Enterprise teams
+
+**Additional context**
+Add any other context or screenshots about the feature request here.
 
 ## 🚀 Feature Summary
 <!-- A clear and concise description of what you want to happen -->
 
 ## 🎯 Motivation
 <!-- Why is this feature needed? What problem does it solve? -->
-**Is your feature request related to a problem?**
 - [ ] Yes, I'm frustrated when...
 - [ ] No, this is an enhancement
-
-**Problem description**: 
-<!-- A clear description of what the problem is. Ex. I'm always frustrated when [...] -->
 
 ## 💡 Proposed Solution
 <!-- Describe the solution you'd like -->
