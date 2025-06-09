@@ -1,0 +1,25 @@
+# Book settings
+title: MCP Tutorial
+author: Carlos Ibañez
+copyright: "2024"
+logo: ../resources/images/logo.png
+
+# Force re-execution of notebooks on each build
+execute:
+  execute_notebooks: force
+
+# Information about where the book exists on the web
+repository:
+  url: https://github.com/CarlosIbCu/mcp-tutorial-complete-guide
+  branch: main
+
+# Add GitHub buttons to your book
+html:
+  use_issues_button: true
+  use_repository_button: true
+
+# Add a Table of contents
+sphinx:
+  config:
+    html_theme_options:
+      navigation_with_keys: true 

@@ -1,0 +1,28 @@
+format: jb-book
+root: index
+parts:
+  - caption: Fundamentals
+    chapters:
+    - file: fundamentals/01_introduction
+    - file: fundamentals/02_setup_environment
+    - file: fundamentals/03_your_first_mcp
+    - file: fundamentals/04_basic_concepts
+    - file: fundamentals/05_simple_tools
+  
+  - caption: Intermediate
+    chapters:
+    - file: intermediate/06_error_handling
+    - file: intermediate/07_async_operations
+    - file: intermediate/08_state_management
+    - file: intermediate/09_security
+    - file: intermediate/10_testing
+  
+  - caption: Advanced
+    chapters:
+    - file: advanced/11_custom_resources
+    - file: advanced/12_advanced_error_handling
+    - file: advanced/13_security_auth
+    - file: advanced/14_advanced_protocol
+    - file: advanced/15_deployment
+    - file: advanced/16_tool_composition
+    - file: advanced/17_state_management 

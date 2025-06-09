@@ -21,7 +21,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install mkdocs mkdocs-material jupyter-book
+        pip install jupyter-book sphinx-rtd-theme sphinx-copybutton
+    
+    - name: Create resources directory
+      run: |
+        mkdir -p resources/images
+        touch resources/images/logo.png
     
     - name: Build documentation
       run: |
