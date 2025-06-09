@@ -1,97 +1,207 @@
 #!/usr/bin/env python3
 """
-Database Manager MCP Server
+Database MCP Server
 
-A comprehensive MCP server for database operations.
+A comprehensive MCP server for database operations using FastMCP.
+Demonstrates:
+- SQL query execution
+- Database connection management
+- Type-safe operations
+- Resource providers
 """
 
 import asyncio
 import sqlite3
-from typing import Dict, Any
+from typing import Dict, List, Any, Optional
+from datetime import datetime
 
-class DatabaseMCPServer:
-    """Database Manager MCP Server"""
-    
-    def __init__(self):
-        self.connections = {}
-        
-    async def connect_database(self, database_type: str, connection_string: str) -> Dict[str, Any]:
-        """Connect to a database"""
-        try:
-            if database_type == "sqlite":
-                conn = sqlite3.connect(connection_string)
-                conn.row_factory = sqlite3.Row
-                self.connections["default"] = {"type": "sqlite", "connection": conn}
-                
-                return {
-                    "success": True,
-                    "message": f"Connected to {database_type} database",
-                    "database_type": database_type
-                }
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-    
-    async def execute_query(self, query: str, limit: int = 100) -> Dict[str, Any]:
-        """Execute a SQL query"""
-        try:
-            if "default" not in self.connections:
-                return {"success": False, "error": "No database connection"}
-            
-            conn = self.connections["default"]["connection"]
-            cursor = conn.cursor()
-            cursor.execute(query)
-            
-            if query.lower().strip().startswith("select"):
-                rows = cursor.fetchmany(limit)
-                columns = [desc[0] for desc in cursor.description]
-                results = [dict(zip(columns, row)) for row in rows]
-                
-                return {
-                    "success": True,
-                    "data": results,
-                    "row_count": len(results)
-                }
-            else:
-                conn.commit()
-                return {
-                    "success": True,
-                    "message": "Query executed successfully",
-                    "rows_affected": cursor.rowcount
-                }
-        except Exception as e:
-            return {"success": False, "error": str(e)}
+from mcp.server.fastmcp import FastMCP
+import mcp.types as types
+from pydantic import BaseModel
 
-async def main():
-    """Demo the database MCP server"""
-    db_server = DatabaseMCPServer()
-    
-    print("🗄️  Database Manager MCP Server Demo")
-    print("=" * 40)
-    
-    # Connect to demo database
-    result = await db_server.connect_database("sqlite", "demo.db")
-    print(f"Connection: {result}")
-    
-    # Create demo table
-    create_query = """
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY,
-        name TEXT,
-        email TEXT
-    )
+# Initialize FastMCP server
+mcp = FastMCP("database_tools")
+
+class QueryResult(BaseModel):
+    """Model for query results"""
+    columns: List[str]
+    rows: List[Dict[str, Any]]
+    row_count: int
+    execution_time: float
+
+class DatabaseConfig(BaseModel):
+    """Database configuration model"""
+    type: str
+    connection_string: str
+    max_connections: int = 10
+
+# System prompts
+@mcp.prompt()
+def system_prompt() -> str:
+    """Define the database assistant's role"""
+    return """
+    You are a database assistant that helps users interact with databases safely.
+    Always validate queries before execution and use proper error handling.
+    Never execute dangerous operations without confirmation.
     """
-    result = await db_server.execute_query(create_query)
-    print(f"Create table: {result}")
+
+@mcp.prompt()
+def error_prompt() -> str:
+    """Handle database errors"""
+    return """
+    I encountered an error while working with the database.
+    This could be due to:
+    - Invalid SQL syntax
+    - Connection issues
+    - Permission problems
+    - Resource constraints
+    Please check your query and try again.
+    """
+
+# Database resources
+@mcp.resource("db://{database}/{table}")
+async def get_table_info(database: str, table: str) -> Dict:
+    """Get metadata about a database table"""
+    try:
+        conn = sqlite3.connect(f"{database}.db")
+        cursor = conn.cursor()
+        cursor.execute(f"PRAGMA table_info({table})")
+        columns = cursor.fetchall()
+        
+        return {
+            "table": table,
+            "columns": [col[1] for col in columns],
+            "types": [col[2] for col in columns],
+            "last_checked": datetime.now().isoformat()
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
+# Database tools
+@mcp.tool()
+async def execute_query(query: str, limit: int = 100) -> Dict:
+    """
+    Execute a SQL query safely
     
-    # Insert data
-    insert_query = "INSERT INTO users (name, email) VALUES ('Alice', 'alice@example.com')"
-    result = await db_server.execute_query(insert_query)
-    print(f"Insert: {result}")
+    Args:
+        query: SQL query to execute
+        limit: Maximum number of rows to return
+        
+    Returns:
+        Dictionary with query results or error information
+    """
+    try:
+        # In production, use connection pooling
+        conn = sqlite3.connect("demo.db")
+        cursor = conn.cursor()
+        
+        start_time = datetime.now()
+        cursor.execute(query)
+        
+        if query.lower().strip().startswith("select"):
+            rows = cursor.fetchmany(limit)
+            columns = [desc[0] for desc in cursor.description]
+            results = [dict(zip(columns, row)) for row in rows]
+            
+            execution_time = (datetime.now() - start_time).total_seconds()
+            
+            return {
+                "success": True,
+                "data": QueryResult(
+                    columns=columns,
+                    rows=results,
+                    row_count=len(results),
+                    execution_time=execution_time
+                ).dict()
+            }
+        else:
+            conn.commit()
+            execution_time = (datetime.now() - start_time).total_seconds()
+            
+            return {
+                "success": True,
+                "data": {
+                    "rows_affected": cursor.rowcount,
+                    "execution_time": execution_time
+                }
+            }
+            
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "prompt": "error_prompt"
+        }
+
+@mcp.tool()
+async def get_table_schema(table: str) -> Dict:
+    """
+    Get schema information for a table
     
-    # Query data
-    select_query = "SELECT * FROM users"
-    result = await db_server.execute_query(select_query)
-    print(f"Query results: {result}")
+    Args:
+        table: Name of the table
+        
+    Returns:
+        Dictionary with table schema information
+    """
+    try:
+        # Get schema from resource
+        schema = await get_table_info("demo", table)
+        
+        if "error" in schema:
+            raise Exception(schema["error"])
+            
+        return {
+            "success": True,
+            "data": schema
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "prompt": "error_prompt"
+        }
+
+@mcp.tool()
+async def validate_query(query: str) -> Dict:
+    """
+    Validate a SQL query without executing it
+    
+    Args:
+        query: SQL query to validate
+        
+    Returns:
+        Dictionary with validation results
+    """
+    try:
+        conn = sqlite3.connect(":memory:")
+        cursor = conn.cursor()
+        
+        # SQLite will parse but not execute in prepare mode
+        cursor.execute(f"EXPLAIN QUERY PLAN {query}")
+        plan = cursor.fetchall()
+        
+        return {
+            "success": True,
+            "data": {
+                "is_valid": True,
+                "query_plan": plan,
+                "validation_time": datetime.now().isoformat()
+            }
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "data": {
+                "is_valid": False,
+                "validation_time": datetime.now().isoformat()
+            }
+        }
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    # Run the MCP server
+    print("🗄️  Starting Database MCP Server...")
+    mcp.run(transport="streamable-http") 

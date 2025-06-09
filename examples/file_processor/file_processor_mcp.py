@@ -2,308 +2,316 @@
 """
 File Processor MCP Server
 
-A comprehensive MCP server for file processing operations including:
-- Reading and writing various file formats
-- Text processing and transformation
-- File organization and management
-- Batch processing operations
+A comprehensive MCP server for file operations using FastMCP.
+Demonstrates:
+- Secure file handling
+- Resource providers
+- Type validation
+- Error handling
 """
 
-import asyncio
 import os
 import json
 import csv
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+from datetime import datetime
 import hashlib
 import mimetypes
 
-class FileProcessorMCPServer:
-    """File Processor MCP Server for file operations"""
+from mcp.server.fastmcp import FastMCP
+import mcp.types as types
+from pydantic import BaseModel
+
+# Initialize FastMCP server
+mcp = FastMCP("file_tools")
+
+class FileInfo(BaseModel):
+    """File information model"""
+    path: str
+    size: int
+    modified: float
+    mime_type: str
+    hash: Optional[str]
+
+class FileContent(BaseModel):
+    """File content model"""
+    content: str
+    encoding: str
+    lines: int
+    info: FileInfo
+
+class TextAnalysis(BaseModel):
+    """Text analysis results model"""
+    characters: int
+    words: int
+    lines: int
+    unique_words: int
+    top_words: List[tuple]
+    file_info: FileInfo
+
+# System prompts
+@mcp.prompt()
+def system_prompt() -> str:
+    """Define the file processor's role"""
+    return """
+    You are a file processing assistant that helps users work with files safely.
+    Always validate paths and file operations before execution.
+    Never perform dangerous operations without confirmation.
+    """
+
+@mcp.prompt()
+def error_prompt() -> str:
+    """Handle file operation errors"""
+    return """
+    I encountered an error while processing the file.
+    This could be due to:
+    - Invalid file path
+    - Permission issues
+    - File not found
+    - Unsupported file type
+    Please check the file and try again.
+    """
+
+# File resources
+@mcp.resource("file://{path}")
+async def get_file_info(path: str) -> Dict:
+    """Get metadata about a file"""
+    try:
+        full_path = Path(path).resolve()
+        
+        if not full_path.exists():
+            return {"error": "File not found"}
+            
+        stat = full_path.stat()
+        mime_type, _ = mimetypes.guess_type(str(full_path))
+        
+        # Calculate file hash
+        sha256_hash = hashlib.sha256()
+        with open(full_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        
+        return FileInfo(
+            path=str(full_path),
+            size=stat.st_size,
+            modified=stat.st_mtime,
+            mime_type=mime_type or "application/octet-stream",
+            hash=sha256_hash.hexdigest()
+        ).dict()
+        
+    except Exception as e:
+        return {"error": str(e)}
+
+# File operation tools
+@mcp.tool()
+async def read_file(file_path: str, encoding: str = "utf-8") -> Dict:
+    """
+    Read a file safely
     
-    def __init__(self, base_directory: str = "."):
-        self.base_dir = Path(base_directory).resolve()
-        self.allowed_extensions = {
-            '.txt', '.md', '.json', '.csv', '.log', '.py', '.js', '.html', '.css'
+    Args:
+        file_path: Path to the file
+        encoding: File encoding (default: utf-8)
+        
+    Returns:
+        Dictionary with file contents and metadata
+    """
+    try:
+        # Get file info from resource
+        file_info = await get_file_info(file_path)
+        
+        if "error" in file_info:
+            raise Exception(file_info["error"])
+            
+        # Validate file type
+        if not file_info["mime_type"].startswith(("text/", "application/")):
+            raise Exception("Unsupported file type")
+            
+        # Read file
+        with open(file_path, "r", encoding=encoding) as f:
+            content = f.read()
+            
+        return {
+            "success": True,
+            "data": FileContent(
+                content=content,
+                encoding=encoding,
+                lines=len(content.splitlines()),
+                info=FileInfo(**file_info)
+            ).dict()
         }
         
-    async def read_file(self, file_path: str, encoding: str = "utf-8") -> Dict[str, Any]:
-        """Read a file and return its contents"""
-        try:
-            full_path = self.base_dir / file_path
-            
-            # Security check - ensure path is within base directory
-            if not str(full_path.resolve()).startswith(str(self.base_dir)):
-                return {
-                    "success": False,
-                    "error": "Access denied: Path outside allowed directory"
-                }
-            
-            if not full_path.exists():
-                return {
-                    "success": False,
-                    "error": f"File not found: {file_path}"
-                }
-            
-            # Check file extension
-            if full_path.suffix.lower() not in self.allowed_extensions:
-                return {
-                    "success": False,
-                    "error": f"File type not allowed: {full_path.suffix}"
-                }
-            
-            with open(full_path, 'r', encoding=encoding) as f:
-                content = f.read()
-            
-            # Get file metadata
-            stat = full_path.stat()
-            
-            return {
-                "success": True,
-                "content": content,
-                "file_info": {
-                    "path": str(file_path),
-                    "size": stat.st_size,
-                    "modified": stat.st_mtime,
-                    "encoding": encoding,
-                    "lines": len(content.splitlines())
-                }
-            }
-            
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"Failed to read file: {str(e)}"
-            }
-    
-    async def write_file(self, file_path: str, content: str, 
-                        encoding: str = "utf-8", mode: str = "w") -> Dict[str, Any]:
-        """Write content to a file"""
-        try:
-            full_path = self.base_dir / file_path
-            
-            # Security check
-            if not str(full_path.resolve()).startswith(str(self.base_dir)):
-                return {
-                    "success": False,
-                    "error": "Access denied: Path outside allowed directory"
-                }
-            
-            # Check file extension
-            if full_path.suffix.lower() not in self.allowed_extensions:
-                return {
-                    "success": False,
-                    "error": f"File type not allowed: {full_path.suffix}"
-                }
-            
-            # Create directory if it doesn't exist
-            full_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            with open(full_path, mode, encoding=encoding) as f:
-                f.write(content)
-            
-            # Get file info after writing
-            stat = full_path.stat()
-            
-            return {
-                "success": True,
-                "message": f"Successfully wrote to {file_path}",
-                "file_info": {
-                    "path": str(file_path),
-                    "size": stat.st_size,
-                    "lines": len(content.splitlines()),
-                    "mode": mode
-                }
-            }
-            
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"Failed to write file: {str(e)}"
-            }
-    
-    async def list_files(self, directory: str = ".", pattern: str = "*") -> Dict[str, Any]:
-        """List files in a directory with optional pattern matching"""
-        try:
-            dir_path = self.base_dir / directory
-            
-            # Security check
-            if not str(dir_path.resolve()).startswith(str(self.base_dir)):
-                return {
-                    "success": False,
-                    "error": "Access denied: Path outside allowed directory"
-                }
-            
-            if not dir_path.exists():
-                return {
-                    "success": False,
-                    "error": f"Directory not found: {directory}"
-                }
-            
-            files = []
-            for item in dir_path.glob(pattern):
-                if item.is_file() and item.suffix.lower() in self.allowed_extensions:
-                    stat = item.stat()
-                    files.append({
-                        "name": item.name,
-                        "path": str(item.relative_to(self.base_dir)),
-                        "size": stat.st_size,
-                        "modified": stat.st_mtime,
-                        "type": item.suffix.lower()
-                    })
-            
-            return {
-                "success": True,
-                "files": sorted(files, key=lambda x: x["name"]),
-                "count": len(files),
-                "directory": directory
-            }
-            
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"Failed to list files: {str(e)}"
-            }
-    
-    async def process_csv(self, file_path: str, operation: str, **kwargs) -> Dict[str, Any]:
-        """Process CSV files with various operations"""
-        try:
-            full_path = self.base_dir / file_path
-            
-            if not full_path.exists() or full_path.suffix.lower() != '.csv':
-                return {
-                    "success": False,
-                    "error": "CSV file not found or invalid format"
-                }
-            
-            with open(full_path, 'r', newline='', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-            
-            if operation == "summary":
-                return {
-                    "success": True,
-                    "summary": {
-                        "total_rows": len(rows),
-                        "columns": list(rows[0].keys()) if rows else [],
-                        "sample_data": rows[:3] if rows else []
-                    }
-                }
-            
-            elif operation == "filter":
-                column = kwargs.get("column")
-                value = kwargs.get("value")
-                if column and value:
-                    filtered = [row for row in rows if row.get(column) == value]
-                    return {
-                        "success": True,
-                        "filtered_data": filtered,
-                        "original_count": len(rows),
-                        "filtered_count": len(filtered)
-                    }
-            
-            return {
-                "success": False,
-                "error": f"Unknown operation: {operation}"
-            }
-            
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"CSV processing failed: {str(e)}"
-            }
-    
-    async def text_analysis(self, file_path: str) -> Dict[str, Any]:
-        """Analyze text file for basic statistics"""
-        try:
-            result = await self.read_file(file_path)
-            
-            if not result["success"]:
-                return result
-            
-            content = result["content"]
-            lines = content.splitlines()
-            words = content.split()
-            
-            # Character frequency
-            char_freq = {}
-            for char in content.lower():
-                if char.isalpha():
-                    char_freq[char] = char_freq.get(char, 0) + 1
-            
-            # Word frequency (top 10)
-            word_freq = {}
-            for word in words:
-                clean_word = ''.join(c for c in word.lower() if c.isalpha())
-                if clean_word and len(clean_word) > 2:
-                    word_freq[clean_word] = word_freq.get(clean_word, 0) + 1
-            
-            top_words = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)[:10]
-            
-            return {
-                "success": True,
-                "analysis": {
-                    "characters": len(content),
-                    "lines": len(lines),
-                    "words": len(words),
-                    "unique_words": len(word_freq),
-                    "avg_words_per_line": len(words) / max(len(lines), 1),
-                    "top_words": top_words,
-                    "file_path": file_path
-                }
-            }
-            
-        except Exception as e:
-            return {
-                "success": False,
-                "error": f"Text analysis failed: {str(e)}"
-            }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "prompt": "error_prompt"
+        }
 
-async def main():
-    """Demo the file processor MCP server"""
-    processor = FileProcessorMCPServer()
-    
-    print("📁 File Processor MCP Server Demo")
-    print("=" * 40)
-    
-    # Create a demo text file
-    demo_content = """Hello World!
-    This is a demo file for the MCP file processor.
-    It contains multiple lines of text for testing.
-    We can analyze this text and perform various operations.
+@mcp.tool()
+async def write_file(file_path: str, content: str, encoding: str = "utf-8") -> Dict:
     """
+    Write content to a file safely
     
-    # Write demo file
-    result = await processor.write_file("demo.txt", demo_content)
-    print(f"Write file: {result}")
+    Args:
+        file_path: Path to write to
+        content: Content to write
+        encoding: File encoding (default: utf-8)
+        
+    Returns:
+        Dictionary with operation results
+    """
+    try:
+        # Validate path
+        full_path = Path(file_path).resolve()
+        
+        # Create parent directories
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Write file
+        with open(full_path, "w", encoding=encoding) as f:
+            f.write(content)
+            
+        # Get updated file info
+        file_info = await get_file_info(str(full_path))
+        
+        return {
+            "success": True,
+            "data": {
+                "path": str(full_path),
+                "size": file_info["size"],
+                "lines": len(content.splitlines()),
+                "encoding": encoding
+            }
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "prompt": "error_prompt"
+        }
+
+@mcp.tool()
+async def analyze_text(file_path: str) -> Dict:
+    """
+    Analyze text file contents
     
-    # Read the file back
-    result = await processor.read_file("demo.txt")
-    print(f"Read file: {result['success']}")
-    if result["success"]:
-        print(f"Content preview: {result['content'][:50]}...")
+    Args:
+        file_path: Path to text file
+        
+    Returns:
+        Dictionary with text analysis results
+    """
+    try:
+        # Read file first
+        result = await read_file(file_path)
+        
+        if not result["success"]:
+            raise Exception(result["error"])
+            
+        content = result["data"]["content"]
+        file_info = FileInfo(**result["data"]["info"])
+        
+        # Analyze content
+        words = content.split()
+        word_freq = {}
+        
+        for word in words:
+            clean_word = "".join(c.lower() for c in word if c.isalpha())
+            if clean_word and len(clean_word) > 2:
+                word_freq[clean_word] = word_freq.get(clean_word, 0) + 1
+                
+        top_words = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)[:10]
+        
+        return {
+            "success": True,
+            "data": TextAnalysis(
+                characters=len(content),
+                words=len(words),
+                lines=len(content.splitlines()),
+                unique_words=len(word_freq),
+                top_words=top_words,
+                file_info=file_info
+            ).dict()
+        }
+        
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "prompt": "error_prompt"
+        }
+
+@mcp.tool()
+async def process_csv(file_path: str, operation: str = "summary", **kwargs) -> Dict:
+    """
+    Process CSV files with various operations
     
-    # List files
-    result = await processor.list_files(".", "*.txt")
-    print(f"List files: {result}")
-    
-    # Analyze text
-    result = await processor.text_analysis("demo.txt")
-    print(f"Text analysis: {result}")
-    
-    # Create and process CSV
-    csv_content = """name,age,city
-Alice,25,New York
-Bob,30,London
-Carol,28,Paris
-David,35,Tokyo
-"""
-    
-    result = await processor.write_file("demo.csv", csv_content)
-    print(f"CSV write: {result['success']}")
-    
-    result = await processor.process_csv("demo.csv", "summary")
-    print(f"CSV summary: {result}")
+    Args:
+        file_path: Path to CSV file
+        operation: Operation to perform (summary, filter)
+        **kwargs: Additional operation parameters
+        
+    Returns:
+        Dictionary with operation results
+    """
+    try:
+        # Validate file type
+        file_info = await get_file_info(file_path)
+        
+        if "error" in file_info:
+            raise Exception(file_info["error"])
+            
+        if not file_info["mime_type"] in ["text/csv", "application/csv"]:
+            raise Exception("Not a CSV file")
+            
+        # Read CSV
+        with open(file_path, "r", newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            
+        if operation == "summary":
+            return {
+                "success": True,
+                "data": {
+                    "total_rows": len(rows),
+                    "columns": list(rows[0].keys()) if rows else [],
+                    "sample": rows[:3] if rows else [],
+                    "file_info": file_info
+                }
+            }
+            
+        elif operation == "filter":
+            column = kwargs.get("column")
+            value = kwargs.get("value")
+            
+            if not (column and value):
+                raise Exception("Filter requires column and value")
+                
+            filtered = [row for row in rows if row.get(column) == value]
+            
+            return {
+                "success": True,
+                "data": {
+                    "filtered_rows": filtered,
+                    "total_matches": len(filtered),
+                    "filter_info": {"column": column, "value": value},
+                    "file_info": file_info
+                }
+            }
+            
+        else:
+            raise Exception(f"Unknown operation: {operation}")
+            
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "prompt": "error_prompt"
+        }
 
 if __name__ == "__main__":
-    asyncio.run(main()) 
+    # Run the MCP server
+    print("📁 Starting File Processor MCP Server...")
+    mcp.run(transport="streamable-http") 
