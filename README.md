@@ -135,7 +135,7 @@ The Model Context Protocol (MCP) is a standardized protocol that enables AI assi
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/mcp-tutorial-complete-guide.git
+git clone https://github.com/CarlosIbCu/mcp-tutorial-complete-guide.git
 cd mcp-tutorial-complete-guide
 
 # Create and activate virtual environment
